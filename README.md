@@ -31,6 +31,12 @@ The reset icon in the top bar restores Amy as the selected coach, three availabl
 9. Enter an optional private note and an optional shared next step, such as “Try a 10-minute walk after lunch three times this week.” Choose **Save & finish wrap-up**. The coach becomes available again only if the switch is on and sufficient time remains.
 10. In **Member app → My Coaching → View summary**, verify the shared next step. Private notes appear only in the coach UI. **Coach dashboard → Sessions** shows the same completed session.
 
+## Coach-managed booking availability — no external scheduling API
+
+Coaches choose availability directly in this product. In Coach dashboard → **Manage booking times**, choose the day, start time and end time, then **Add availability window**. In Member app, choose **Book a session** for that coach and select the same day: the new times appear immediately. Booking consumes a slot and updates both views. Removing a window prevents new bookings and preserves existing appointments. Times use the browser’s local timezone in this mock.
+
+Production should persist this schedule in our own service and validate overlaps there. External calendar/provider synchronization can be optional; it is not required for coach selection or member booking in this design.
+
 ## Other scenarios to test
 
 | Scenario | How to try it | Expected result |
@@ -70,4 +76,3 @@ The new connected feature is clickable; unrelated coach Programs, Clients, Chats
 
 > I created a prototype with mock data covering both the member app and coach dashboard. You can set coach availability, send a member request, accept or decline it, join from both sides, and finish the session with shared next steps. Please try the main flow and the fallback scenarios before I implement it. The review guide explains exactly where to click and what to check. Use the top bar to switch views, or open two tabs in the same browser. Each reviewer has their own demo data.
 
-Only the sanitized static prototype and this walkthrough are published. Private source captures, live application source, credentials, and real account data are excluded.
