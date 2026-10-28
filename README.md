@@ -23,10 +23,10 @@ The reset icon in the top bar restores Amy as the selected coach, three availabl
 1. **Coach dashboard → Available Now.** Turn off the availability switch. Switch to Member app and verify Amy no longer offers Connect now. She remains discoverable for a scheduled booking.
 2. Return to **Coach dashboard → Set availability**. Choose **2 hours**, enable **30 and 60 minutes**, and **Save availability**. Switch to Member app; Amy is available again.
 3. In **Member app → Available Now**, choose **Connect now** on Amy’s card. Select **30 minutes / 1 credit**, optionally enter “I want a manageable routine this week,” tick the readiness checkbox, and select **Request Amy**.
-4. The member waits and still has eight credits. Choose **Review request as coach**, or use the top bar. The coach sees Alex’s goal, duration, language, and a **90-second response window**.
-5. Choose **Accept request**. The coach is reserved; another request cannot use that coach. About three seconds later, the mock booking and room are ready. The balance changes to seven once.
+4. The member sees the 3:00 connection countdown plus elapsed wait, and still has eight credits. Choose **Review request as coach**, or use the top bar. The coach sees Alex’s goal, duration, language, and a **90-second response window**.
+5. Choose **Accept request**. The coach is reserved; another request cannot use that coach. About three seconds later, the mock booking and room are ready. Acceptance and preparation do not stop the countdown or use credits; the coach must join the prepared room before the same three-minute deadline.
 6. Switch to **Member app**, open the active session banner, choose **Check audio & join**, try the simulated media controls, and select **Join session with Amy**. The member waits for the coach; no device permissions are requested.
-7. Choose **Switch to coach and join**, then **Join session**. Both views now show the same session in progress. Use the top bar to inspect either side. A minimized room can be reopened from the active session banner or Return to session.
+7. Choose **Switch to coach and join**, then **Join session**. Joining as coach stops the countdown and uses one credit once (eight becomes seven). Both views now show the same session in progress, and the full session duration begins only after both participants join. Use the top bar to inspect either side. A minimized room can be reopened from the active session banner or Return to session.
 8. **End session** from either side. The other view updates. On Coach dashboard, the coach stays unavailable while wrapping up.
 9. Enter an optional private note and an optional shared next step, such as “Try a 10-minute walk after lunch three times this week.” Choose **Save & finish wrap-up**. The coach becomes available again only if the switch is on and sufficient time remains.
 10. In **Member app → My Coaching → View summary**, verify the shared next step. Private notes appear only in the coach UI. **Coach dashboard → Sessions** shows the same completed session.
@@ -37,13 +37,32 @@ Coaches choose availability directly in this product. In Coach dashboard → **M
 
 Production should persist this schedule in our own service and validate overlaps there. External calendar/provider synchronization can be optional; it is not required for coach selection or member booking in this design.
 
+## Three-minute connection limit — how to review
+
+The request has **one absolute three-minute deadline**, beginning when the member submits. It includes matching, any eligible coach retries, acceptance, room preparation, and the coach actually joining. Acceptance alone does not satisfy it. The member sees remaining time, elapsed wait, and a reminder that their full session starts after both participants join. The intake explains the time budget before submission: up to three minutes to connect, then the selected session duration, plus the member’s device check.
+
+**Fast timeout check (about ten seconds):**
+
+1. Reset and keep Auto-play coach responses off. Send a request from Member app.
+2. Close the request dialog using X, then open **Prototype controls → Coach response → Jump to final 10 seconds**. The same request reopens at 0:10 with 2:50 already waited; this is an explicit demo time skip.
+3. Do not join as coach. At 0:00, verify **No coach connected within 3 minutes**, **No credits used**, the unchanged eight-credit balance, and the request closed on the coach side.
+4. Choose **Book the next available session** to see the coach-managed slots, or **Try a new 3-minute request** to enter a new request. Neither alternative starts automatically.
+5. Repeat after accepting and preparing the room, with the member in the waiting room if desired, but do not join as coach. The same timeout still applies, with no charge.
+
+**Retry check:** Use Find me a coach and decline as the first coach. Verify the next offer keeps the remaining total time; it never resets to 3:00. Each offer can have up to ninety seconds, capped by the time left. A direct request may end earlier when the selected coach declines or misses that response window.
+
+**Success check:** Accept, wait for preparation, then join as coach before the total deadline. Both views show **Coach connected within the 3-minute limit** and the countdown stops. The mock credit is charged once at this point. The member has a separate five-minute join window; their thirty/sixty-minute session starts only after both join. Letting the member join first does not stop the connection countdown while the coach is absent.
+
+Refreshing or switching views keeps the absolute deadline. A late accept/join cannot reopen a timed-out request. Closing the member dialog leaves a visible countdown in the active-request banner; when time runs out, that becomes a persistent **3-minute connection limit reached · No credits used** link to the fallback.
+
 ## Other scenarios to test
 
 | Scenario | How to try it | Expected result |
 | --- | --- | --- |
 | Direct request declined | Request Amy, switch to coach, Decline request | Member chooses another coach or books later; no silent substitution and no credits used. |
 | Pooled retry | Member → Find me a coach; decline the first offer | Another eligible coach receives the request. Use Open receiving coach to inspect it. |
-| No response | Wait 90 seconds, or Prototype controls → Coach response → Simulate request timeout | Direct request ends; pooled request tries another eligible coach. Credits stay available. |
+| No response | Wait up to 90 seconds, or use Coach response → Simulate request timeout | Direct request ends; pooled request retries within the original three-minute total. Credits stay available. |
+| Three-minute total expires | Coach response → Jump to final 10 seconds; leave coach unconnected | Matching/preparation/waiting closes on both views at 0:00. No credits used; booking and an explicit new request are offered. |
 | Cancel while matching | Member → Cancel request → confirm | Incoming coach offer closes. Late acceptance cannot revive it. |
 | Cancel after confirmation | Cancel before both participants join | Both views close the booking and mock credits return once. |
 | Stop future requests | Coach turns availability off during an accepted session | Current session remains reserved. After wrap-up, coach stays offline. |
@@ -53,7 +72,7 @@ Production should persist this schedule in our own service and validate overlaps
 | No available coaches | Scenarios → No coaches available | All five sample coaches can still be explored/booked; Available now only shows a useful empty state. |
 | Insufficient credits | Scenarios → Insufficient credits; submit a request | No offer is sent and no credits are consumed. |
 | Session setup fails | Scenarios → Session setup fails; request and accept as coach | Preparation fails, both sides update, and the original balance stays available. |
-| Join timeout | Confirm a session but do not have both people join for five minutes | Session closes and mock credits return. |
+| Member join timeout | Have the coach connect, then do not join as member for five minutes | Session closes and mock credits return. |
 | Scheduled fallback | Book a session → duration/date/time → Confirm session | Mock booking appears in member My Coaching and the selected coach’s Sessions. No calendar invite is sent. |
 | Reload/two tabs | Refresh or use two tabs in the same browser profile | Saved state remains and updates synchronize. Reset clears both tabs. |
 
@@ -68,7 +87,7 @@ A scenario change resets the current request, history, availability, and balance
 - Does the wrap-up make the shared next step easy to find while keeping the private note out of the member UI?
 - Does the addition fit the existing dark member app and light coach dashboard?
 
-Pricing (30 minutes/one credit, 60 minutes/two credits), a five-minute buffer, a ninety-second response window, a five-minute join window, and pre-session credit returns are **proposed prototype rules for review**. This is not a statement of current production policy.
+Pricing (30 minutes/one credit, 60 minutes/two credits), a five-minute buffer, a three-minute total connection limit, up to ninety seconds per offer within that limit, a separate five-minute member join window after the coach connects, and pre-session credit returns are **proposed prototype rules for review**. This is not a statement of current production policy.
 
 The new connected feature is clickable; unrelated coach Programs, Clients, Chats, and SOP Assistant modules are outside this review. Browser-local note separation demonstrates the UI only, not production authorization. Real implementation needs server-side eligibility/entitlements, atomic reservations, coach presence and disconnect handling, delivery/notifications, credits, calendars, access controls, and video integration.
 
